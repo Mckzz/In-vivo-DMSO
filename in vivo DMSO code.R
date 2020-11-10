@@ -25,12 +25,12 @@ DMSOlong.pct <- DMSOlong %>%
   mutate(
     area.pct.change = ((area - area[1]) / area[1]
     )*100) %>%
+  as_tibble(DMSOlong.pct) %>%
   ungroup()
 
-head(DMSOlong.pct, n=192)
 str(DMSOlong.pct)
 
-head(DMSOlong.pct, n=192)
+print(DMSOlong.pct)
 
 # makes separate anterior/ posterior dataframes
 anterior <- subset(DMSOlong.pct, ant.post == "ant", 
@@ -115,9 +115,32 @@ ggplot(data = means, aes(x= min, colour= treatment)) +
   labs(x = "Min", y = "% change") +
   theme_classic()
 
+####### ploting with only 2h mark and 2.86% DMSO #######
+print(DMSOlong.pct, n= 192)
+
+#takes onlt the 2h mark and then control and 2.86%
+
+firstlast <- 
+  DMSOlong.pct %>%
+  subset(min == "120", 
+         select = c(treatment, ant.post, larva, min, area.pct.change)) %>%
+  subset(treatment %in% c("control" , "2.86%"),
+         select = c(treatment, ant.post, larva, min, area.pct.change))
+
+print(firstlast, n= 24)  
+
+firstlast$treatment <- as.factor(firstlast$treatment)
 
 
-
+ggplot(firstlast, aes(y = area.pct.change, x = treatment, colour= ant.post)) +
+  geom_jitter(size = 2, pch = 1, position = position_dodge(width = 0.7)) +
+  labs(x = "Treatment", y = "% change") + #labels axes
+  theme_classic() +  #takes out background
+  stat_summary(
+    fun.data = mean_sdl, position = position_dodge(width = 0.5), geom = "errorbar", width = 0.1, fun.args = list(mult=1)) +
+  stat_summary(
+    fun = mean, geom = "point", position = position_dodge(width = 0.5),
+    size = 3)
 
 
 
