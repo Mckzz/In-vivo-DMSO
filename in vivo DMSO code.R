@@ -142,6 +142,31 @@ ggplot(firstlast, aes(y = area.pct.change, x = treatment, colour= ant.post)) +
     fun = mean, geom = "point", position = position_dodge(width = 0.5),
     size = 3)
 
+########### stats ###########
+
+stats_data <-
+  firstlast %>%
+  mutate(treatment = as_factor(treatment)) %>%
+  mutate(ant.post = as_factor(ant.post)) %>%
+  mutate(min = as_factor(min)) %>%
+  mutate(larva = as_factor(larva))
+
+print(stats_data, n= 24)
+
+mcmod <-
+  MCMCglmm::MCMCglmm(
+    area.pct.change ~ treatment, random = ~larva,
+    data = stats_data, scale = FALSE,
+    nitt = 1300000, thin = 1000, burnin = 300000, 
+    verbose = FALSE
+  )
+
+summary(mcmod)
+
+# importance of larval identity
+mean(mcmod$VCV[,1]/(mcmod$VCV[,1] + mcmod$VCV[,2]))
+
+print(stats_data)
 
 
 
